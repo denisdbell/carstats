@@ -44,18 +44,10 @@ get_vehicle_info <- function(url) {
 	
 	html <- read_html(url)
 	
-	#last_page_number <- get_last_page(first_page)
-
-	#Generate all pages
-	#list_of_pages <- str_c(url, '?page=browse&p=', 1:last_page_number)
-
-	#Get all cars on the page
-	#vehicle_tag_list <- read_html(url) %>% html_nodes('.thumbnails-ro')
-
 	#Get all titles
 	titles <- html %>% html_nodes('.initInfo') %>%  html_nodes('.results-title') %>% html_text()
 
-	prices <- html%>% html_nodes('span') %>% html_nodes('.results-priceE')  %>% html_text() #%>% numextract
+	prices <- html%>% html_nodes('span') %>% html_nodes('.results-priceE')  %>% html_text() %>% numextract
 
 	years <- html %>% html_nodes('span') %>% html_nodes('.results-year')  %>% html_text()
  
@@ -72,7 +64,7 @@ html <- read_html(url)
 
 last_page_number <- get_last_page(html)
 
-list_of_pages <- str_c(url, '?page=browse&p=', 1:2)
+list_of_pages <- str_c(url, '?page=browse&p=', 1:last_page_number)
 
 for(url in list_of_pages){
 	print(url)
