@@ -35,14 +35,12 @@ get_last_page <- function(html){
 	
 	#Divide total pages by total items displayed. 
 	#This gives the last page number	
-	last_page_number <- ceiling( as.numeric( unlist(last_page)[1] ) / 10 )
+	last_page_number <- round( as.numeric( unlist(last_page)[1] ) / 10 )
 
 	
 }
 
 html <- read_html(url)
-
-data <- get_last_page(html)
 
 get_vehicle_info <- function(url) {
 
@@ -56,23 +54,42 @@ get_vehicle_info <- function(url) {
         makes <- NA
         models <- NA
         prices <- NA
-       
+        titles <- NA
         processed_data <- NA
 	
 	for (i in 1:length(car_data)) {
  
    		years[i] <- car_data[[i]][1]
 		makes[i] <- car_data[[i]][2]
-		#models[i] <- car_data[[i]][3]	
+
+		model_price_match <- grepl("\\$",car_data[[i]], perl=TRUE) 
 		
-	        model_price <- strsplit ( car_data[[i]][ grepl("\\$",car_data[[i]], perl=TRUE) ], "\\$" )
-		print(model_price)	
-		models[i] = model_price[[1]][1]
-		prices[i] = model_price[[1]][2]
+		if( any(model_price_match) ){
+			  model_price <- strsplit ( car_data[[i]][ model_price_match ], "\\$" )
+			  models[i] <- model_price[[1]][1]
+	                  prices[i] <- numextract(model_price[[1]][2])
+
+		}else{
+			models[i] <- car_data[[i]][3]
+			prices[i] <- NA
+		}	
+	
+		titles[i] = paste(makes[i],models[i], sep = " ")
         }		
 
-	processed_data <- rbind( processed_data,data.frame(years,makes,models,prices) )
-	print(processed_data)
+	processed_data <- rbind( processed_data,data.frame(titles,prices,years) )
 }
 
-get_vehicle_info(url)
+data <- NA
+
+last_page_number <- get_last_page(html)
+
+list_of_pages <- str_c(url, '&page=', 1:last_page_number)
+
+for(url in list_of_pages){
+        print(url)
+        data <- rbind( data, get_vehicle_info(url) )
+}
+
+write.csv(data, file = "autoadsdata.csv")
+
