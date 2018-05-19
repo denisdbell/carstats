@@ -2,32 +2,40 @@
 #Date: May 16, 2018
 #Description: File to provide reports for jacars data
 
-
 ##Load all data
 data <- read.csv2("all.csv", sep = ",")
 
 makes <- unique(data$make.1)
 models <- unique(data$make.2)
 
+#Count occurences of a specific column
+aggregate_by_count <- function(column) {
 
-#Stire make and number of occurences
-make_count <- ""
+   #Aggregate data		
+   aggre <- aggregate(data.frame(count = column), list(value = column), length)
 
-make_count <- aggregate(data.frame(count = data$make.1), list(value = data$make.1), length)
+   #Order by count
+   order <- aggre[order(-aggre$count), ]	
+}
 
-make_count <- make_count[order(-make_count$count), ]
+filter_data <- function(data,column,value){
+	#filtered_data <- data[(column == value) && is.na(data$make.2),]
+	
+	filtered_data <- data[(tolower(column) == tolower(value)) & !is.na(data$prices),]
+}
 
+#head( aggregate_by_count(data$prices), 100L )
 
-models_count <- aggregate(data.frame(count = data$make.2), list(value = data$make.2), length)
- 
-models_count <- models_count[order(-models_count$count),]
+result <- filter_data(data,data$make.2,"ractis")
 
-year_count <-  aggregate(data.frame(count = data$years), list(value = data$years), length)
+result <- filter_data(result,result$years,"2010")
 
-year_count <- year_count[order(-year_count$count), ]
+prices = as.numeric(as.character(result$prices))
 
-head(year_count, n = 10L)
+print(result)
 
-head(models_count, n = 10L)
+max(prices)
 
-head(make_count, n = 10L)
+mean(prices)
+
+min(prices)
