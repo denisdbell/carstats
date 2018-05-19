@@ -2,6 +2,9 @@
 #Date: May 16, 2018
 #Description: File to provide reports for jacars data
 
+library(dplyr)
+
+
 ##Load all data
 data <- read.csv2("all.csv", sep = ",")
 
@@ -26,16 +29,14 @@ filter_data <- function(data,column,value){
 
 #head( aggregate_by_count(data$prices), 100L )
 
-result <- filter_data(data,data$make.2,"ractis")
+result <- filter_data(data,data$make.2,"ad wagon")
 
 result <- filter_data(result,result$years,"2010")
 
-prices = as.numeric(as.character(result$prices))
+result$prices = as.numeric(as.character(result$prices))
 
-print(result)
+print(summary(result) )
 
-max(prices)
 
-mean(prices)
 
-min(prices)
+
