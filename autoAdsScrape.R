@@ -77,7 +77,7 @@ get_vehicle_info <- function(url) {
 		titles[i] = paste(makes[i],models[i], sep = " ")
         }		
 
-	processed_data <- rbind( processed_data,data.frame(titles,prices,years) )
+	processed_data <- rbind( processed_data,data.frame(titles,prices,years,NA,makes,models) )
 }
 
 data <- NA
