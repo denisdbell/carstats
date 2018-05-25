@@ -10,9 +10,13 @@ shinyServer <- function(input, output) {
 	
 	##Load all data
 	data <- read.csv2("all.csv", sep = ",")
+	
+	data$make.1 <- toupper(data$make.1)
+        data$make.2 <- toupper(data$make.2)
+
 
 	makes <- unique(data$make.1)
-	models <- unique(data$make.2)
+	#models <- unique(data$make.2)
         years <- unique(data$years)
 	#aggre <- aggregate_by_count(data$makes)
 
@@ -40,30 +44,14 @@ shinyServer <- function(input, output) {
 
 	   }
 
-	 #  if(class(input$model)=="character") {
-
-          #      data <- na.omit(data[data$models %in% input$model,])
-
-          # }
-
-	  # if(class(input$make)=="character") {
-
-           #     data <- na.omit(data[data$makes %in% input$make,])
-
-           #}
-
-	   # if( req(input$facility) ){	
-        	#data <- data[data$Facility %in% input$facility,]
-            
-	   # }else{
+           data[rowSums(is.na(data)) != ncol(data), ]
+	})
 	
-	   #	data <- data
-	   # }
-		#data <- data[data$Year %in% req(input$year),]
-	    
-	    print(head(aggregate(data$prices, list(value = data$prices), length)))
-	   
-            data
+	models <- reactive({
+		
+	 	 filtered_data <- data[ data$make.1 == input$make, ]		
+
+		 filtered_data$make.2	
 	})
 
 	motorVehicleDataAggregated <- reactive({	
@@ -78,7 +66,7 @@ shinyServer <- function(input, output) {
 	})
 	
 	output$selectInputModel <- renderUI ({
-		selectInput("model",  "Model:", as.list(models))	
+		selectInput("model",  "Model:", as.list(models()))	
 	})
 	
 	output$selectInputYear <- renderUI ({
@@ -90,22 +78,16 @@ shinyServer <- function(input, output) {
 	)	
 	
         output$plot <- renderPlot({
+	
+		top_models <- head( aggregate_by_count(motorVehicleData()$make.2) )
+
 		print(
-			ggplot(
-				aggregate_by_count(motorVehicleDataAggregated()),
-				aes(x = value,x) 
-			) + geom_line() 
+
+			barplot(top_models$count,
+			names.arg=top_models$value, main="Top Cars",
+   			xlab="Models")  
 				
 		)
 	})
 	
-	# output$plotAggregated <- renderPlot({
-         #       print(
-         #               ggplot(
-          #                      motorVehicleDataAggregated(),
-           #                     aes(x = value,count)
-            #            ) + geom_line()
-
-             #   )
-       # })
 }

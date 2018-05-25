@@ -29,13 +29,13 @@ filter_data <- function(data,column,value){
 
 #head( aggregate_by_count(data$prices), 100L )
 
-result <- filter_data(data,data$make.2,"ad wagon")
+result <- filter_data(data,data$make.2,"rav 4")
 
-result <- filter_data(result,result$years,"2010")
+#result <- filter_data(result,result$years,"2002")
 
 result$prices = as.numeric(as.character(result$prices))
 
-print(summary(result) )
+print( summary(result) )
 
 
 
