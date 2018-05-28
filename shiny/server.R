@@ -38,13 +38,33 @@ shinyServer <- function(input, output) {
 
 	motorVehicleData <- reactive({
            
-           if(class(input$year)=="character") {
+           filtered_data <- data[rowSums(is.na(data)) != ncol(data), ]
 		
-		data <- data[data$years == input$year,]
+	   filtered_data[
+		filtered_data$years == input$year &
+		filtered_data$make.2 == input$model & 
+		filtered_data$make.1 == input$make,
+		,
+	   ]
 
-	   }
+#           if(class(input$year)=="character") {
+#		
+#		filtered_data <- data[filtered_data$years == input$year,]
+#
+#	   }
+	
+#	   if(class(input$model)=="character") {
+		
+#		filtered_data <- data[filtered_data$make.2 == input$model,]
+#	   }
 
-           data[rowSums(is.na(data)) != ncol(data), ]
+#	   if(class(input$make)=="character") {
+#                
+ #               filtered_data <- data[filtered_data$make.1 == input$make,]
+ #          }
+		
+           #filtered_data
+
 	})
 	
 	models <- reactive({
