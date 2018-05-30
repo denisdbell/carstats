@@ -11,15 +11,19 @@ shinyServer <- function(input, output) {
 	#Load all data
 	data <- read.csv2("all.csv", sep = ",")
 	
-	data$make.1 <- toupper(data$make.1)
-        data$make.2 <- toupper(data$make.2)
+	##################################################################
+	########		Function Definitions 		##########
+	##################################################################
 	
-	#Filter out all emoty rows
-	data <- data[rowSums(is.na(data)) != ncol(data), ]
-	
-	#Get unique make and years
-	makes <- unique(data$make.1)
-        years <- unique(data$years)
+
+	#Function will remove duplicates and NA values. 
+        #it will also sort the input and place the text "ALL" 
+        #at the beginning of the  list
+        sanitize_and_sort_select_input_data <- function(column) {
+
+                c("ALL", sort( na.omit(unique(column) ) ) )
+        }
+
 
 	#Count occurences of a specific column
 	aggregate_by_count <- function(column) {
@@ -36,31 +40,52 @@ shinyServer <- function(input, output) {
         	filtered_data <- data[(tolower(column) == tolower(value)) & !is.na(data$prices),]
 	}
 	
+	#############################################################
+	##########             Data preparation 	  ###########
+        #############################################################
+	
+	#convert make and model to uppercase
+	data$make.1 <- toupper(data$make.1)
+        data$make.2 <- toupper(data$make.2)
+
+        #Filter out all empty rows
+        data <- data[rowSums(is.na(data)) != ncol(data), ]	
+
+	
+	makes <- sanitize_and_sort_select_input_data(data$make.1)
+	years <- sanitize_and_sort_select_input_data(data$years)
+	
+
+	############################################################
+	######## 	Reactive Data Definitions 	  ##########
+        ############################################################
 
 	motorVehicleData <- reactive({
            
            filtered_data <- data[rowSums(is.na(data)) != ncol(data), ]
 		
-           if(!stri_isempty(input$make)){   
-               filtered_data <- filtered_data[filtered_data$make.1 == input$make,]
-           
+           if(input$make != "ALL"){   
+               filtered_data <- filtered_data[filtered_data$make.1 == input$make,] 
 	   }
  
-           if(!stri_isempty(input$model)){   
+           if(input$model != "ALL"){   
                filtered_data <- filtered_data[filtered_data$make.2 == input$model,]
            }
 
-	   if(!stri_isempty(input$year)){   
+	   if(input$year != "ALL"){   
                filtered_data <- filtered_data[filtered_data$years == input$year,]
-           }	
+           }
+
+	   filtered_data	
 
 	})
 	
 	models <- reactive({
 		
-	 	 filtered_data <- data[ data$make.1 == input$make, ]		
+	 	filtered_data <- data[ data$make.1 == input$make, ]		
 
-		 filtered_data$make.2	
+		sanitize_and_sort_select_input_data(filtered_data$make.2)
+
 	})
 
 	motorVehicleDataAggregated <- reactive({	
@@ -69,7 +94,6 @@ shinyServer <- function(input, output) {
  
         })
 	
-	#SelectInput with distinct facilities 
   	output$selectInputMake <- renderUI({
     		selectInput("make", "Make:", as.list(makes))
 	})
