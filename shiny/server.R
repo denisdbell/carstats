@@ -39,6 +39,12 @@ shinyServer <- function(input, output) {
 
         	filtered_data <- data[(tolower(column) == tolower(value)) & !is.na(data$prices),]
 	}
+
+	#Remove NA's and format numbers as integers
+	format_prices <- function(column){
+		
+		na.omit(as.integer(as.character(na.omit(column)))) 
+	}
 	
 	#############################################################
 	##########             Data preparation 	  ###########
@@ -53,7 +59,7 @@ shinyServer <- function(input, output) {
 
 	
 	makes <- sanitize_and_sort_select_input_data(data$make.1)
-	years <- sanitize_and_sort_select_input_data(data$years)
+	#years <- sanitize_and_sort_select_input_data(data$years)
 	
 
 	############################################################
@@ -88,6 +94,26 @@ shinyServer <- function(input, output) {
 
 	})
 
+	years <- reactive({
+		
+		filtered_data <- data[ data$make.1 == input$make, ]
+
+                sanitize_and_sort_select_input_data(filtered_data$years)
+
+	})
+
+	aggregatges <- reactive({
+		
+		average_price <- mean(format_prices(motorVehicleData()$prices))
+
+                max_price <- max(format_prices(motorVehicleData()$prices))
+		
+		median_price <- median(format_prices(motorVehicleData()$prices))
+			
+		data.frame(average_price, max_price, median_price)	
+
+	})
+
 	motorVehicleDataAggregated <- reactive({	
 
             aggregate(data$prices, list(value = data$prices), length)
@@ -103,7 +129,7 @@ shinyServer <- function(input, output) {
 	})
 	
 	output$selectInputYear <- renderUI ({
-                selectInput("year",  "Years:", as.list(years))
+                selectInput("year",  "Years:", as.list(years()))
         })
 
 	output$motorVehicleTable <- DT::renderDT( 
@@ -113,6 +139,7 @@ shinyServer <- function(input, output) {
         output$plot <- renderPlot({
 	
 		top_models <- head( aggregate_by_count(motorVehicleData()$make.2) )
+		print(motorVehicleDataAggregated())		
 
 		print(
 
@@ -121,6 +148,13 @@ shinyServer <- function(input, output) {
    			xlab="Models")  
 				
 		)
+	})
+
+        output$aggregations <- renderText({
+		paste0(
+		       "Average Price is: ", aggregatges()$average_price, "</br>",                        "Maximum Price is:", aggregatges()$max_price,"</br>",
+		       "Median Price is:", aggregatges()$median_price
+  		      )
 	})
 	
 }
