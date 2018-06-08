@@ -21,9 +21,10 @@ shinyUI(pageWithSidebar(
 
 	),
 	mainPanel(
-		DT::dataTableOutput("motorVehicleTable"),		
-		plotOutput("plot"),
-		plotOutput("plotAggregated")
+		#DT::dataTableOutput("motorVehicleTable"),
+		htmlOutput("aggregations"),
+		plotOutput("plot")
+		#plotOutput("plotAggregated")
 	)
 ))
 
