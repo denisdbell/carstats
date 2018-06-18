@@ -19,7 +19,10 @@ shinyUI(pageWithSidebar(
 		
 		uiOutput("selectInputYear"),
 
-		uiOutput("sliderInputPrices")
+		uiOutput("sliderInputPricesMin"),
+
+                uiOutput("sliderInputPricesMax")
+
 	),
 	mainPanel(
 		htmlOutput("aggregations"),

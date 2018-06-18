@@ -5,11 +5,12 @@
 library(shiny)
 library(ggplot2)
 library(stringi)
+library(dplyr)
 
 shinyServer <- function(input, output) {
 	
 	#Load all data
-	data <- read.csv2("all.csv", sep = ",")
+	data <- read.csv2("all.csv", sep = ",", stringsAsFactors=FALSE)
 	
 	##################################################################
 	########		Function Definitions 		##########
@@ -23,7 +24,10 @@ shinyServer <- function(input, output) {
 
                 c("ALL", sort( na.omit(unique(column) ) ) )
         }
-
+	
+	#Prices lider min and max variables
+        sliderInputPricesMin = 0  
+        sliderInputPricesMax = 0  
 
 	#Count occurences of a specific column
 	aggregate_by_count <- function(column) {
@@ -81,6 +85,11 @@ shinyServer <- function(input, output) {
 	   if(input$year != "ALL"){   
                filtered_data <- filtered_data[filtered_data$years == input$year,]
            }
+		
+	  filtered_data <- filtered_data[
+	  		    	   filtered_data$prices >= as.numeric(input$prices_min)
+			   	 & filtered_data$prices <= as.numeric(input$prices_max)
+				,		            ]           
 
 	   filtered_data	
 
@@ -135,17 +144,30 @@ shinyServer <- function(input, output) {
         })
 		
 
-	##Slider min and max variables:
-
-		
-
-        output$sliderInputPrices <- renderUI ({
-                 sliderInput("range", "Range:",
-			     min = aggregates()$min_price, 
-			     max = aggregates()$max_price,
-			     value = aggregates()$min_price)
+        output$sliderInputPricesMin <- renderUI ({
+                 
+                 sliderInputPricesMin = 1#aggregates()$min_price
+        	 sliderInputPricesMax = 15000000#aggregates()$max_price/2   
+	         		
+                 sliderInput("prices_min", "Minimum Price:",
+			     min = sliderInputPricesMin, 
+			     max = sliderInputPricesMax,
+			     value = sliderInputPricesMin)
 
         })	
+
+	output$sliderInputPricesMax <- renderUI ({
+
+                 sliderInputPricesMin = 15000000#aggregates()$max_price/2
+                 sliderInputPricesMax = 35000000#aggregates()$max_price
+
+                 sliderInput("prices_max", "Maximum Price:",
+                             min = sliderInputPricesMin,
+                             max = sliderInputPricesMax,
+                             value = sliderInputPricesMin)
+
+        })
+
 
 	output$motorVehicleTable <- DT::renderDT( 
 		motorVehicleData()
