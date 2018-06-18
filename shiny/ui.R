@@ -17,14 +17,13 @@ shinyUI(pageWithSidebar(
 			
 		uiOutput("selectInputModel"),
 		
-		uiOutput("selectInputYear")
+		uiOutput("selectInputYear"),
 
+		uiOutput("sliderInputPrices")
 	),
 	mainPanel(
-		#DT::dataTableOutput("motorVehicleTable"),
 		htmlOutput("aggregations"),
 		plotOutput("plot")
-		#plotOutput("plotAggregated")
 	)
 ))
 

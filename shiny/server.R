@@ -102,15 +102,17 @@ shinyServer <- function(input, output) {
 
 	})
 
-	aggregatges <- reactive({
+	aggregates <- reactive({
 		
-		average_price <- mean(format_prices(motorVehicleData()$prices))
+		average_price <- round(mean(format_prices(motorVehicleData()$prices)))
 
                 max_price <- max(format_prices(motorVehicleData()$prices))
 		
 		median_price <- median(format_prices(motorVehicleData()$prices))
+
+		min_price <- min(format_prices(motorVehicleData()$prices))
 			
-		data.frame(average_price, max_price, median_price)	
+		data.frame(average_price, max_price, median_price, min_price)	
 
 	})
 
@@ -131,6 +133,19 @@ shinyServer <- function(input, output) {
 	output$selectInputYear <- renderUI ({
                 selectInput("year",  "Years:", as.list(years()))
         })
+		
+
+	##Slider min and max variables:
+
+		
+
+        output$sliderInputPrices <- renderUI ({
+                 sliderInput("range", "Range:",
+			     min = aggregates()$min_price, 
+			     max = aggregates()$max_price,
+			     value = aggregates()$min_price)
+
+        })	
 
 	output$motorVehicleTable <- DT::renderDT( 
 		motorVehicleData()
@@ -151,9 +166,9 @@ shinyServer <- function(input, output) {
 	})
 
         output$aggregations <- renderText({
-		paste0(
-		       "Average Price is: ", aggregatges()$average_price, "</br>",                        "Maximum Price is:", aggregatges()$max_price,"</br>",
-		       "Median Price is:", aggregatges()$median_price
+		paste0( 
+		       "<strong>Average Price is :</strong> ", aggregates()$average_price, "</br>",                                              "<strong>Maximum Price is :</strong>", aggregates()$max_price,"</br>",
+		       "<strong>Median Price is :</strong>", aggregates()$median_price
   		      )
 	})
 	
