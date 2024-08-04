@@ -1,10 +1,22 @@
 # Define the base URL and the number of pages you want to scrape
 base_url = 'https://www.autoadsja.com/search.asp?SearchSB=5&page='
 num_pages = 5  # Replace with the actual number of pages
+
+
+
+class car:
+  def __init__(self):
+    self.year = year
+    self.make = make
+    self.model = model
+    self.img_url = img_url
+
 cars = []
 
 # Loop through the paginated pages
 for page in range(1, num_pages + 1):
+
+    new_car = car()
     # Construct the full URL for the current page
     url = f'{base_url}{page}'
     print(f'Fetching URL: {url}')
@@ -27,7 +39,7 @@ for page in range(1, num_pages + 1):
             img_tag_src = listing.find('img')['src']
             if img_tag_src:
                img_url = img_tag_src.strip()
-               cars.append(img_url)
+               car.img_url = img_url
 
             #Get make model and year
             description = listing.find('div', class_='description')
