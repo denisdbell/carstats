@@ -66,3 +66,22 @@ class CarDatabase:
         result = session.query(CarListings).order_by(CarListings.PRICE.asc()).limit(10).all()
         session.close()
         return result
+
+    def filter_cars(self, year=None, make=None, model=None, min_price=None, max_price=None):
+        session = self.Session()
+        query = session.query(CarListings)
+        
+        # Apply filters based on provided arguments
+        if year is not None:
+            query = query.filter(CarListings.YEAR == year)
+        if make is not None:
+            query = query.filter(CarListings.MAKE.ilike(f"%{make}%"))
+        if model is not None:
+            query = query.filter(CarListings.MODEL.ilike(f"%{model}%"))
+        if min_price is not None:
+            query = query.filter(CarListings.PRICE >= min_price)
+        if max_price is not None:
+            query = query.filter(CarListings.PRICE <= max_price)
+
+        # Execute the query and return results
+        return query.all()

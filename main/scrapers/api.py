@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 import os
 import aiomysql
+import jsonify
 
 app = FastAPI()
 db = CarDatabase()
@@ -69,6 +70,11 @@ def get_top_ten_cheapest_cars():
         raise HTTPException(status_code=404, detail="No car listings found")
     return cars
 
+@app.get('/cars/search/')
+def search_cars(year: str | None = None,make: str | None = None, model: str | None = None, min_price: float | None = None, max_price: float | None = None):
+    cars = db.filter_cars(year, make, model ,min_price, max_price)
+    return cars
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
